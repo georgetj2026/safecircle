@@ -60,14 +60,14 @@ export default function HelpGuidelines() {
             <View style={styles.featureBox}>
               <Text style={styles.featureTitle}>2. Emergency Reporting</Text>
               <Text style={styles.featureText}>
-                Press the 'Report' button to send an emergency alert with your real-time location.
+                Press the 'Report' button to send an emergency alert with your real-time location to usew selected contact.
               </Text>
             </View>
 
             <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>3. Power Button Emergency</Text>
+              <Text style={styles.featureTitle}>3.Call function</Text>
               <Text style={styles.featureText}>
-                Pressing the power button 3+ times sends an automatic emergency alert.
+               Enable call mode to redirect call to your selected contact.
               </Text>
             </View>
 
@@ -79,9 +79,9 @@ export default function HelpGuidelines() {
             </View>
 
             <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>5. Audio & Video Recording</Text>
+              <Text style={styles.featureTitle}>5. Services </Text>
               <Text style={styles.featureText}>
-                Your camera and microphone can be activated to record emergency situations.
+                We have include all the services available in india to enable user to search for nerby police stations and hospitals.
               </Text>
             </View>
           </Animated.View>

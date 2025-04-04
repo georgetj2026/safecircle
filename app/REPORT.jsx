@@ -108,7 +108,27 @@ export default function EmergencyOptions() {
       return;
     }
 
-    Vibration.vibrate(500); // Vibrate to indicate the alert is being sent
+    if (isCallMode) {
+      // Call the first contact
+      const firstContact = option.contacts[0];
+      if (firstContact) {
+        Linking.openURL(`tel:${firstContact}`).catch(() => {
+          Toast.show({
+            type: "error",
+            text1: "Call Failed",
+            text2: `Unable to call ${firstContact}.`,
+            position: "center",
+          });
+        });
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "No contact available to call.",
+          position: "center",
+        });
+      }
+      return; // Exit the function after initiating the call
+    }
 
     let location = null;
     try {
@@ -137,39 +157,42 @@ export default function EmergencyOptions() {
 
     const { latitude, longitude } = location.coords;
     const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-    const timestamp = new Date().toLocaleString();
-    const message = `⚠️⚠️ EMERGENCY ALERT ⚠️⚠️\n  ${option.name} \n ${option.procedure}\n 📌📌 Location: ${locationLink}\n🕒 ${timestamp}`;
 
-    if (isCallMode) {
-      // Call the phone number
-      option.contacts.forEach((phoneNumber) => {
-        Linking.openURL(`tel:${phoneNumber}`).catch(() => {
-          Toast.show({
-            type: "error",
-            text1: "Call Failed",
-            text2: `Unable to call ${phoneNumber}.`,
-            position: "center",
-          });
-        });
+    try {
+      const token = await AsyncStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/contact/send-whatsapp-messages`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: option.name, // Pass option.name
+          procedure: option.procedure, // Pass option.procedure
+          locationLink, // Pass locationLink
+          contacts: option.contacts, // Pass contacts
+        }),
       });
-    } else {
-      // Send the message via WhatsApp
-      option.contacts.forEach((phoneNumber) => {
-        const url = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-        Linking.openURL(url).catch((err) => {
-          console.error(`Failed to send WhatsApp message to ${phoneNumber}:`, err);
-          Toast.show({
-            type: "error",
-            text1: "Failed to Send Message",
-            text2: `Could not send message to ${phoneNumber}.`,
-            position: "center",
-          });
-        });
+
+      if (!response.ok) {
+        throw new Error("Failed to send WhatsApp messages.");
+      }
+
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: "WhatsApp messages sent successfully.",
+        position: "center",
+      });
+    } catch (error) {
+      console.error("Error sending WhatsApp messages:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to send WhatsApp messages.",
+        position: "center",
       });
     }
-
-    // Save alert to history
-    saveToHistory({ name: option.name, message, timestamp });
   };
 
   const saveToHistory = async (alert) => {

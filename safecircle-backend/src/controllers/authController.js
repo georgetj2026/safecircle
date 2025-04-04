@@ -84,3 +84,18 @@ exports.getUserProfile = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Delete User Profile
+exports.deleteUserProfile = async (req, res) => {
+    try {
+        const user = await User.findByIdAndDelete(req.user.id); // Delete user by ID
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        res.json({ message: "User profile deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting user profile:", error);
+        res.status(500).json({ message: "Server error" });
+    }
+};

@@ -13,6 +13,7 @@ import {
 import { useNavigation } from "@react-navigation/native";
 
 const data = {
+  "": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool"],
   "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool"],
   "Arunachal Pradesh": ["Itanagar", "Tawang", "Ziro", "Pasighat", "Bomdila"],
   "Assam": ["Guwahati", "Silchar", "Dibrugarh", "Jorhat", "Tezpur"],
@@ -112,7 +113,7 @@ export default function ServicesScreen() {
   );
 
   const renderDistrictsScreen = () => (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.containerDis}>
       {data[selectedState]?.map((district) => (
         <Pressable
           key={district}
@@ -189,7 +190,11 @@ const styles = StyleSheet.create({
   },
   container: {
     alignItems: "center",
-    paddingVertical: 200,
+    paddingVertical: 250,
+  },
+  containerDis: {
+    alignItems: "center",
+    paddingVertical: 20,
   },
   fixedHeader: {
     position: "absolute",

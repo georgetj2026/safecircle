@@ -1,7 +1,6 @@
 const Contact = require("../models/Contact");
 const User = require("../models/User");
-
-// Get all trusted contacts
+const { sendWhatsAppMessages } = require("../utils/whatsapp");
 
 // Update a report option
 const updateReportOption = async (req, res) => {
@@ -56,8 +55,43 @@ const getReportOptions = async (req, res) => {
     }
 };
 
+// Send WhatsApp messages for a specific report option
+const sendWhatsAppMessagesForOption = async (req, res) => {
+    try {
+        const { name, procedure, locationLink } = req.body;
+        const userId = req.user.id;
+
+        console.log("🔍 Fetching report option for user ID:", userId, "and option name:", name);
+
+        const user = await User.findById(userId).select("reportOptions");
+        if (!user) {
+            console.log("⛔ User not found");
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const reportOption = user.reportOptions.find((option) => option.name === name);
+        if (!reportOption || reportOption.contacts.length === 0) {
+            console.log("⛔ No contacts found for this report option");
+            return res.status(404).json({ message: "No contacts found for this report option" });
+        }
+
+        // Construct the message
+        const message = `⚠️⚠️ EMERGENCY ALERT ⚠️⚠️\nName: ${name}\nProcedure: ${procedure}\nLocation: ${locationLink}`;
+
+        // Send WhatsApp messages to the contacts
+        const contacts = reportOption.contacts;
+        await sendWhatsAppMessages(message, contacts);
+
+        res.status(200).json({ message: "WhatsApp messages sent successfully." });
+    } catch (error) {
+        console.error("⛔ Error sending WhatsApp messages:", error);
+        res.status(500).json({ message: "Failed to send WhatsApp messages." });
+    }
+};
+
 // ✅ Ensure all functions are properly exported
 module.exports = {
     updateReportOption,
-    getReportOptions
+    getReportOptions,
+    sendWhatsAppMessagesForOption,
 };
