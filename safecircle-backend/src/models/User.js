@@ -51,6 +51,19 @@ const UserSchema = new mongoose.Schema(
         { name: "Natural Disaster", contacts: [], procedure: "" },
       ],
     },
+
+    // Emergency alert history
+    history: {
+      type: [
+        {
+          type: { type: String, required: true }, // Type of emergency
+          phoneNumber: { type: String, required: true }, // Phone number the alert was sent to
+          procedure: { type: String, required: true }, // Procedure
+          timestamp: { type: Date, default: Date.now }, // Timestamp
+        },
+      ],
+      default: [],
+    },
   },
   { timestamps: true }
 );

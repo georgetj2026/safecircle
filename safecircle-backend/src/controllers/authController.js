@@ -99,3 +99,59 @@ exports.deleteUserProfile = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Add Emergency Alert to History
+exports.addHistory = async (req, res) => {
+  try {
+    const { type, phoneNumber, procedure } = req.body;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const newHistory = { type, phoneNumber, procedure };
+    user.history.unshift(newHistory); // Add the new history entry to the beginning
+    await user.save();
+
+    res.status(201).json({ message: "History added successfully", history: user.history });
+  } catch (error) {
+    console.error("Error adding history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Fetch Emergency Alert History
+exports.getHistory = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("history");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.json(user.history);
+  } catch (error) {
+    console.error("Error fetching history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// Delete Emergency Alert History
+exports.deleteHistory = async (req, res) => {
+  try {
+    const { historyId } = req.params;
+
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    user.history = user.history.filter((entry) => entry._id.toString() !== historyId);
+    await user.save();
+
+    res.json({ message: "History entry deleted successfully", history: user.history });
+  } catch (error) {
+    console.error("Error deleting history:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

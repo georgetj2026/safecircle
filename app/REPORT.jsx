@@ -200,6 +200,14 @@ export default function EmergencyOptions() {
             position: "center",
           });
         });
+  
+        // Save to history
+        await saveToHistory({
+          type: option.name,
+          phoneNumber: firstContact,
+          procedure: option.procedure,
+          timestamp,
+        });
       } else {
         Toast.show({
           type: "error",
@@ -230,6 +238,16 @@ export default function EmergencyOptions() {
         throw new Error("Failed to send WhatsApp messages.");
       }
   
+      const timestamp = new Date().toLocaleString();
+  
+      // Save to history
+      await saveToHistory({
+        type: option.name,
+        phoneNumber: option.contacts[0],
+        procedure: option.procedure,
+        timestamp,
+      });
+  
       Toast.show({
         type: "success",
         text1: "Success",
@@ -248,15 +266,26 @@ export default function EmergencyOptions() {
   };
   const saveToHistory = async (alert) => {
     try {
-      const existingHistory = await AsyncStorage.getItem("alertHistory");
-      const history = existingHistory ? JSON.parse(existingHistory) : [];
-      history.unshift(alert); // Add new entry at the beginning
-      await AsyncStorage.setItem("alertHistory", JSON.stringify(history));
+      const token = await AsyncStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/auth/history`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(alert),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save history");
+      }
+  
       console.log("Alert saved to history:", alert);
     } catch (error) {
       console.error("Error saving to history:", error);
     }
   };
+  
 
   const handleEditOption = (item) => {
     setSelectedOption(item);

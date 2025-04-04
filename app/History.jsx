@@ -8,11 +8,11 @@ import {
   Text,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   Platform,
   ImageBackground,
 } from "react-native";
 import { FontAwesome } from "@expo/vector-icons";
+import { BASE_API_URL } from "@/services/authService"; // Import BASE_API_URL
 
 export default function HistoryPage() {
   const [history, setHistory] = useState([]);
@@ -25,48 +25,83 @@ export default function HistoryPage() {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const storedHistory = await AsyncStorage.getItem("alertHistory");
-        if (storedHistory) {
-          setHistory(JSON.parse(storedHistory)); // Parse and set the history
+        const token = await AsyncStorage.getItem("authToken");
+        const response = await fetch(`${BASE_API_URL}/auth/history`, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch history");
         }
+
+        const data = await response.json();
+        setHistory(data);
       } catch (error) {
-        console.error("Error retrieving history:", error);
+        console.error("Error fetching history:", error);
       }
     };
 
     fetchHistory();
   }, []); // Empty dependency array means this runs once when the component is mounted
 
-  const handleDelete = async (index) => {
-    const newHistory = [...history];
-    newHistory.splice(index, 1); // Remove the item at the given index
-
+  const handleDelete = async (historyId) => {
     try {
-      await AsyncStorage.setItem("alertHistory", JSON.stringify(newHistory)); // Save updated history
-      setHistory(newHistory); // Update local state to reflect changes
+      const token = await AsyncStorage.getItem("authToken");
+      const response = await fetch(`${BASE_API_URL}/auth/history/${historyId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete history");
+      }
+
+      setHistory((prevHistory) => prevHistory.filter((item) => item._id !== historyId));
     } catch (error) {
       console.error("Error deleting history:", error);
     }
   };
 
-  const renderItem = ({ item, index }) => (
+  const renderItem = ({ item }) => (
     <View style={styles.historyItem}>
-      <Text style={styles.historyText}>{item.message}</Text>
-      <TouchableOpacity onPress={() => handleDelete(index)} style={styles.deleteButton}>
+      <View style={styles.historyDetails}>
+      <Text style={styles.alertHeader}>EMERGENCY ALERT SENT</Text>
+        <Text style={styles.historyText}>
+          <Text style={styles.label}>SITUVATION:</Text> {item.type}
+        </Text>
+        <Text style={styles.historyText}>
+          <Text style={styles.label}>ALERT-SEND TO:</Text> {item.phoneNumber}
+        </Text>
+        <Text style={styles.historyText}>
+          <Text style={styles.label}>CONTENT:</Text> {item.procedure}
+        </Text>
+        <Text style={styles.historyText}>
+          <Text style={styles.label}>DATE & TIME:</Text> {new Date(item.timestamp).toLocaleString()}
+        </Text>
+      </View>
+      <TouchableOpacity onPress={() => handleDelete(item._id)} style={styles.deleteButton}>
         <FontAwesome name="trash" size={20} color="red" />
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <ImageBackground source={require('@/assets/images/innerbg.jpg')} style={styles.background}>
+    <ImageBackground
+      source={require('@/assets/images/bg.jpg')} // Updated background image
+      style={styles.background}
+    >
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>HISTORY</Text>
         {history.length > 0 ? (
           <FlatList
             data={history}
             renderItem={renderItem}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item) => item._id}
           />
         ) : (
           <Text style={styles.noHistory}>No history available.</Text>
@@ -81,14 +116,21 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     paddingTop: Platform.OS === "android" ? 25 : 0, // Add padding for Android to avoid overlap with the status bar
-    backgroundColor: "#f5f5f5", // Set a neutral background color
+  },
+   alertHeader: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "black", // Bright orange color for emphasis
+    textAlign: "center",
+    marginBottom: 10,
   },
   title: {
     fontSize: 36,
     fontWeight: "bold",
+    fontStyle:"Georgia",
     textAlign: "center",
     marginBottom: 20,
-    color: "#333", // Neutral text color
+    color: "rgb(242, 245, 246)", // Semi-transparent background for better readability
   },
   historyItem: {
     flexDirection: "row",
@@ -100,19 +142,28 @@ const styles = StyleSheet.create({
     height: 175, // Adjust height for better alignment
     marginBottom: 12,
     borderRadius: 12,
-    backgroundColor: "rgba(123, 150, 165, 0.85)",
+    backgroundColor: "rgba(6, 104, 201, 0.8)", // Semi-transparent background for better readability
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3, // Add elevation for Android shadow
   },
-  historyText: {
+  historyDetails: {
     flex: 1,
+    paddingLeft: 15,
+    color:"white"
+  },
+  historyText: {
     fontSize: 14, // Slightly larger font for better readability
     fontWeight: "bold",
-    paddingLeft: 15,
-    color: "#fff", // White text for better contrast
+    color: "white", // White text for better contrast
+    marginBottom: 5,
+    alignContent:"right"
+  },
+  label: {
+    fontWeight: "bold",
+    color: "rgba(128, 165, 246, 0.8)", // Gold color for labels
   },
   deleteButton: {
     marginRight: 20,
