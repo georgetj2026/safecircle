@@ -133,7 +133,7 @@ export default function ServicesScreen() {
   );
 
   const renderServicesScreen = () => (
-    <ScrollView contentContainerStyle={styles.container}>
+    <ScrollView contentContainerStyle={styles.containerDis}>
       <Text style={styles.header}>{selectedDistrict} Services</Text>
       {services[selectedDistrict]?.length > 0 ? (
         services[selectedDistrict].map((service, index) => (
@@ -186,7 +186,7 @@ export default function ServicesScreen() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: "#000", // Optional: Set a fallback background color
+    backgroundColor: "rgba(7, 42, 107, 0.5)", // Optional: Set a fallback background color
   },
   container: {
     alignItems: "center",

@@ -107,7 +107,62 @@ export default function EmergencyOptions() {
       });
       return;
     }
-
+  
+    const useMetaApi = (await AsyncStorage.getItem("useMetaApi")) === "true"; // Check toggle state
+  
+    let location = null;
+    let locationLink = "";
+  
+    try {
+      // Check if GPS is enabled
+      const isLocationEnabled = await Location.hasServicesEnabledAsync();
+      if (!isLocationEnabled) {
+        Toast.show({
+          type: "error",
+          text1: "GPS Disabled",
+          text2: "Please enable GPS in your device settings.",
+          position: "center",
+        });
+        return;
+      }
+  
+      // Request location permissions
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Toast.show({
+          type: "error",
+          text1: "Location Permission Denied",
+          text2: "Please grant location permissions in your device settings.",
+          position: "center",
+        });
+        return;
+      }
+    } catch (error) {
+      console.error("Error requesting location permissions:", error);
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: "Failed to request location permissions.",
+        position: "center",
+      });
+      return;
+    }
+  
+    try {
+      location = await Location.getCurrentPositionAsync({});
+      const { latitude, longitude } = location.coords;
+      locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
+    } catch (error) {
+      console.error("Error fetching location:", error);
+      Toast.show({
+        type: "error",
+        text1: "Failed to Get Location",
+        text2: "Please enable GPS and try again.",
+        position: "center",
+      });
+      return;
+    }
+  
     if (isCallMode) {
       // Call the first contact
       const firstContact = option.contacts[0];
@@ -129,35 +184,32 @@ export default function EmergencyOptions() {
       }
       return; // Exit the function after initiating the call
     }
-
-    let location = null;
-    try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
+  
+    if (!useMetaApi) {
+      // Send a simple message using WhatsApp URL
+      const firstContact = option.contacts[0];
+      if (firstContact) {
+        const timestamp = new Date().toLocaleString();
+        const message = `⚠⚠ EMERGENCY ALERT ⚠⚠\n${option.name}\n${option.procedure}\n📌📌 Location: ${locationLink}\n🕒 ${timestamp}`;
+        const whatsappUrl = `https://wa.me/${firstContact}?text=${encodeURIComponent(message)}`;
+        Linking.openURL(whatsappUrl).catch(() => {
+          Toast.show({
+            type: "error",
+            text1: "Failed to Send Message",
+            text2: `Unable to send message to ${firstContact}.`,
+            position: "center",
+          });
+        });
+      } else {
         Toast.show({
           type: "error",
-          text1: "Location Permission Denied",
-          text2: "Cannot fetch location.",
+          text1: "No contact available to send message.",
           position: "center",
         });
-        return;
       }
-
-      location = await Location.getCurrentPositionAsync({});
-    } catch (error) {
-      console.error("Error fetching location:", error);
-      Toast.show({
-        type: "error",
-        text1: "Failed to Get Location",
-        text2: "Please enable GPS and try again.",
-        position: "center",
-      });
-      return;
+      return; // Exit the function after sending the message
     }
-
-    const { latitude, longitude } = location.coords;
-    const locationLink = `https://www.google.com/maps?q=${latitude},${longitude}`;
-
+  
     try {
       const token = await AsyncStorage.getItem("authToken");
       const response = await fetch(`${BASE_API_URL}/contact/send-whatsapp-messages`, {
@@ -173,11 +225,11 @@ export default function EmergencyOptions() {
           contacts: option.contacts, // Pass contacts
         }),
       });
-
+  
       if (!response.ok) {
         throw new Error("Failed to send WhatsApp messages.");
       }
-
+  
       Toast.show({
         type: "success",
         text1: "Success",
@@ -194,7 +246,6 @@ export default function EmergencyOptions() {
       });
     }
   };
-
   const saveToHistory = async (alert) => {
     try {
       const existingHistory = await AsyncStorage.getItem("alertHistory");
@@ -258,7 +309,7 @@ export default function EmergencyOptions() {
 
         {/* Toggle switch for calling or sending message */}
         <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Call  </Text>
+          <Text style={styles.switchLabel}>Call</Text>
           <Switch
             value={isCallMode}
             onValueChange={setIsCallMode}

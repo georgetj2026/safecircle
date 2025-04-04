@@ -7,13 +7,24 @@ import { BASE_API_URL } from '@/services/authService'; // Import BASE_API_URL
 const Settings = () => {
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [useMetaApi, setUseMetaApi] = useState(true); // Toggle state for META API
   const navigation = useNavigation();
 
   useEffect(() => {
     navigation.setOptions({ headerShown: false }); // Hide the header
+    const loadSettings = async () => {
+      const savedMetaApiState = await AsyncStorage.getItem("useMetaApi");
+      setUseMetaApi(savedMetaApiState === "true"); // Load saved state
+    };
+    loadSettings();
   }, [navigation]);
 
   const styles = createStyles(darkMode); // Dynamically generate styles based on darkMode
+
+  const handleMetaApiToggle = async (value) => {
+    setUseMetaApi(value);
+    await AsyncStorage.setItem("useMetaApi", value.toString()); // Save state to AsyncStorage
+  };
 
   const handleDeleteProfile = async () => {
     try {
@@ -72,6 +83,12 @@ const Settings = () => {
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>Dark Mode</Text>
             <Switch value={darkMode} onValueChange={setDarkMode} />
+          </View>
+
+          {/* Use META API Toggle */}
+          <View style={styles.settingRow}>
+            <Text style={styles.settingText}>Use META API</Text>
+            <Switch value={useMetaApi} onValueChange={handleMetaApiToggle} />
           </View>
 
           {/* Delete Profile Button */}

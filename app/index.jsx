@@ -39,7 +39,8 @@ const App = () => {
         </TouchableOpacity>
         
         <Text style={styles.title}>SAFE CIRCLE</Text>
-        <Text style={styles.titledes}>Empowering Safety                                                   Strengthening Connections</Text>
+        <Text style={styles.titledes}>Empowering Safety</Text>
+        <Text style={styles.titledes}> Strengthening Connections</Text>
 
         <View style={styles.buttonContainer}>
 
