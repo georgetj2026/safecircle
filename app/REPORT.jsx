@@ -16,11 +16,11 @@ import {
   Vibration,
   Switch,
 } from "react-native";
-import { Colors } from "@/constants/Colors";
 import Toast from "react-native-toast-message";
+import { useTheme } from "@/context/ThemeContext";
+
 import EditEmergencyOption from "./edit-emergency-option";
 import { FontAwesome } from "@expo/vector-icons";
-import rctimage from "@/assets/images/a7395e40-2054-4147-8314-728e940a8063.jpg";
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation
 import { BASE_API_URL } from "@/services/authService"; // Import BASE_API_URL
 
@@ -36,9 +36,8 @@ const defaultOptions = [
 
 export default function EmergencyOptions() {
   const navigation = useNavigation(); // Initialize navigation
-  const colorScheme = Appearance.getColorScheme();
-  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
-  const styles = createStyles(theme);
+  const { isDarkMode } = useTheme(); // Access dark mode state
+  const styles = createStyles(isDarkMode); // Pass isDarkMode to createStyles
   const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const [options, setOptions] = useState(defaultOptions);
@@ -250,9 +249,10 @@ export default function EmergencyOptions() {
   
       Toast.show({
         type: "success",
-        text1: "Success",
-        text2: "WhatsApp messages sent successfully.",
-        position: "center",
+        text1: "WHATSAPP",
+        text2: "Message send via CHATBOT.",
+        position: "top", // or "top", "bottom"
+        topOffset: 50,  
       });
     } catch (error) {
       console.error("Error sending WhatsApp messages:", error);
@@ -260,7 +260,8 @@ export default function EmergencyOptions() {
         type: "error",
         text1: "Error",
         text2: "Failed to send WhatsApp messages.",
-        position: "center",
+        position: "top", // or "top", "bottom"
+        topOffset: 50,  
       });
     }
   };
@@ -331,20 +332,29 @@ export default function EmergencyOptions() {
   };
 
   return (
-    <ImageBackground source={rctimage} style={styles.backgroundImage}>
+         <ImageBackground
+            source={
+              isDarkMode
+                ? require("@/assets/images/0002.jpg")
+                : require("@/assets/images/002.jpg")
+            }
+            style={styles.backgroundImage}
+          >
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>REPORT</Text>
-        <Text style={styles.titledes}>REPORT YOUR SITUATION</Text>
+        <Text style={styles.titledes}>Safety starts with a tap</Text>
 
         {/* Toggle switch for calling or sending message */}
         <View style={styles.switchContainer}>
-          <Text style={styles.switchLabel}>Call</Text>
-          <Switch
-            value={isCallMode}
-            onValueChange={setIsCallMode}
-            trackColor={{ false: "#767577", true: "#81b0ff" }}
-            thumbColor={isCallMode ? "#f5dd4b" : "#f4f3f4"}
-          />
+          <FontAwesome name="phone" size={35} color={isDarkMode ? "rgb(250, 5, 5)" : "rgba(143, 141, 248, 0.94)"} /> {/* Scaled phone icon */}
+          <View style={styles.switchWrapper}>
+            <Switch
+              value={isCallMode}
+              onValueChange={setIsCallMode}
+              trackColor={{ false: "blue", true: "rgba(171, 171, 175, 0.94)" }}
+
+            />
+          </View>
         </View>
 
         <Animated.View style={{ opacity: fadeAnim }}>
@@ -366,7 +376,7 @@ export default function EmergencyOptions() {
                   style={styles.editButton}
                   onPress={() => handleEditOption(item)}
                 >
-                  <FontAwesome name="pencil" size={18} color="white" />
+                  <FontAwesome name="pencil" size={22} color="white" />
                 </TouchableOpacity>
               </View>
             )}
@@ -392,7 +402,7 @@ export default function EmergencyOptions() {
   );
 }
 
-function createStyles(theme) {
+function createStyles(isDarkMode) {
   return StyleSheet.create({
     backgroundImage: {
       width: "100%",
@@ -400,18 +410,22 @@ function createStyles(theme) {
       flex: 1,
       resizeMode: "cover",
     },
+    overlay: {
+      ...StyleSheet.absoluteFillObject, // Fill the entire screen
+      backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black overlay
+    },
     container: {
       flex: 1,
       padding: 16,
-      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      backgroundColor: isDarkMode ? "rgba(0, 0, 0, 0.5)" : "rgba(7, 42, 107, 0.5)",
     },
     title: {
-      fontSize: 50,
+      fontSize: 65,
       paddingTop: 50,
-      fontWeight: "bold",
+      fontWeight: "800",
       marginBottom: 15,
       textAlign: "center",
-      color: "white",
+      color: isDarkMode ? "white" : "rgb(0, 119, 255)",
     },
     contentContainer: {
       paddingTop: 10,
@@ -419,9 +433,11 @@ function createStyles(theme) {
       paddingHorizontal: 10,
     },
     titledes: {
-      color: "rgb(75, 87, 170)",
+      color: isDarkMode ? "lightgrey" : "rgb(147, 160, 248)",
       fontSize: 18,
-      fontWeight: "calibery",
+      fontWeight: "300",
+      fontFamily: "georgia",
+      fontStyle: "italic",
       textAlign: "center",
       textShadowColor: "rgba(0, 0, 0, 0.7)",
       textShadowOffset: { width: 2, height: 2 },
@@ -429,36 +445,32 @@ function createStyles(theme) {
       marginBottom: 10,
     },
     switchContainer: {
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "centre",
-      paddingTop:20,
-      
+      flexDirection: "row", // Align items horizontally
+      alignItems: "left", // Vertically center the content
+      justifyContent: "left", // Center the content horizontally
+      paddingVertical: 20, // Add padding to the top and bottom
+      paddingHorizontal: 45, // Add padding to the left and right
+
     },
-    switchLabel: {
-      fontSize: 16,
-      color: "white",
-      fontWeight: "bold",
-      paddingLeft:50,
-      paddingBottom:30,
-      paddingTop:30,
+    switchWrapper: {
+      marginLeft: 10,
     },
     row: {
       flexDirection: "row",
-      justifyContent: "space-between", // Ensures even spacing between children
-      alignItems: "center", // Vertically centers the content
-      width: "90%", // Use percentage-based width for consistency
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: "85%",
       height: 55,
       marginBottom: 12,
       borderRadius: 18,
-      backgroundColor: "rgba(0, 130, 245, 0.85)",
+      backgroundColor: isDarkMode ? "rgba(55, 55, 55, 0.85)" : "rgba(0, 82, 245, 0.5)",
       shadowColor: "#000",
       shadowOffset: { width: 0, height: 4 },
       shadowOpacity: 0.2,
       shadowRadius: 4,
-      elevation: 1, // Adds shadow for Android
-      alignSelf: "center", // Centers the row horizontally
-      paddingHorizontal: 10, // Adds padding inside the row
+      elevation: 1,
+      alignSelf: "center",
+      paddingHorizontal: 10,
     },
     emergencyButton: {
       flex: 1,
@@ -468,8 +480,8 @@ function createStyles(theme) {
       padding: 10,
     },
     buttonText: {
-      fontSize: 16,
-      color: "#fff",
+      fontSize: 20,
+      color: "white",
       fontWeight: "bold",
       textAlign: "center",
     },

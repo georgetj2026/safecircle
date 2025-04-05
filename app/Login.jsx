@@ -1,12 +1,17 @@
-import { StyleSheet, TextInput, View, Text, TouchableOpacity, ScrollView, SafeAreaView, Alert } from 'react-native';
+import { StyleSheet, TextInput, View, Text, TouchableOpacity,ImageBackground, ScrollView, SafeAreaView, Alert } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'expo-router'; // Import useRouter
 import { login, register } from '@/services/authService';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 import { useNavigation } from "@react-navigation/native"; // Import useNavigation
+import { useTheme } from "@/context/ThemeContext";
+import CalendarPicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
+
+
+import moment from 'moment';
+
 
 export default function LoginScreen() {
   const router = useRouter(); // Use useRouter for navigation
@@ -21,6 +26,10 @@ export default function LoginScreen() {
   const [dob, setDob] = useState('');
   const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
+
+  const defaultCalendarStyles = useDefaultStyles();
 
   // Hide the header
   useEffect(() => {
@@ -63,6 +72,9 @@ export default function LoginScreen() {
     }
     return false;
   };
+  const { isDarkMode } = useTheme(); // Get dark mode from context
+
+  const styles = createStyles(isDarkMode); 
 
   // Function to handle Login & Signup
   const handleSubmit = async () => {
@@ -119,9 +131,16 @@ export default function LoginScreen() {
   };
 
   return (
+    <ImageBackground
+    source={
+      isDarkMode
+        ? require("@/assets/images/0002.jpg")
+        : require("@/assets/images/002.jpg")
+    }
+    style={styles.backgroundImage}
+  >
     <SafeAreaView style={styles.safeContainer}>
       <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.container}>
 
           <ThemedView style={styles.titleContainer}>
             <ThemedText style={styles.titleText}type="title">{isLogin ? ' LOGIN ' : 'Create Account'}</ThemedText>
@@ -133,7 +152,27 @@ export default function LoginScreen() {
                 <InputField label="Name" value={name} onChangeText={setName} />
                 <InputField label="Address" value={address} onChangeText={setAddress} />
                 <InputField label="Aadhar Number" value={aadhar} onChangeText={setAadhar} />
-                <InputField label="Date of Birth" value={dob} onChangeText={setDob} />
+                <TouchableOpacity onPress={() => setShowCalendar(true)}>
+                <InputField label="Date of Birth" value={dob} onChangeText={setDob}editable={false}disableFocus={true} />
+                </TouchableOpacity>
+
+              {showCalendar && (
+                <View style={{ alignSelf: 'center', backgroundColor: isDarkMode ? 'rgba' : 'light', padding: 20, borderRadius: 10 }}>
+                 <CalendarPicker
+                    mode="single"
+                    date={selectedDate}
+                    onChange={({ date }) => {
+                     setSelectedDate(date);
+                      const formatted = moment(date).format('DD/MM/YYYY');
+                     setDob(formatted);
+                     setShowCalendar(false);
+                   }}
+                   styles={defaultCalendarStyles}
+                 />
+                 </View>
+               )}
+
+
                 <InputField label="Gender" value={gender} onChangeText={setGender} />
               </>
             )}
@@ -149,94 +188,111 @@ export default function LoginScreen() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => setIsLogin(!isLogin)}>
-            <Text style={styles.switchText}>{isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}</Text>
+            <ThemedText style={styles.switchText}>{isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login"}</ThemedText>
           </TouchableOpacity>
-        </View>
       </ScrollView>
     </SafeAreaView>
+    </ImageBackground>
   );
 }
 
 // Reusable Input Field Component
-const InputField = ({ label, value, onChangeText, keyboardType = 'default', secureTextEntry = false }) => (
-  <View style={styles.inputWrapper}>
-    <Text style={styles.label}>{label}</Text>
-    <TextInput
-      style={styles.input}
-      value={value}
-      onChangeText={onChangeText}
-      keyboardType={keyboardType}
-      secureTextEntry={secureTextEntry}
-    />
-  </View>
-);
+// Reusable Input Field Component (Placed after styles to avoid reference error)
+const InputField = ({ label, value, onChangeText, keyboardType = 'default', secureTextEntry = false, editable = true, disableFocus = false }) => {
+  const { isDarkMode } = useTheme(); // Access dark mode
+  const styles = createStyles(isDarkMode); // Get updated styles
 
-const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: 'lightblue',
-  },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingBottom:220,
-  },
-  container: {
-    width: '90%',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  headerImage: {
-    marginBottom: 20,
-  },
-  titleContainer: {
-    marginBottom: 20,
-    backgroundColor: 'transparent' ,
-  },
-  inputContainer: {
-    width: '100%',
-  },
-  inputWrapper: {
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: 'black',
-    marginBottom: 5,
-  },
-  input: {
-    height: 50,
-    backgroundColor: '#FFF',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    borderColor: '#DDD',
-    borderWidth: 1,
-  },
-  button: {
-    backgroundColor: '#4A90E2',
-    padding: 15,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginVertical: 10,
-    width: '100%',
-  },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-  titleText: {
-    color: '#FFF',
-    paddingTop:10,
-    fontSize: 40,
-    fontWeight: 'bold',
-  },
-  switchText: {
-    color: '#4A90E2',
-    marginTop: 10,
-  },
-});
+  return (
+    <View style={styles.inputWrapper}>
+      <Text style={[styles.label, { color: isDarkMode ? '#fff' : 'white' }]}>{label}</Text>
+      <View pointerEvents={disableFocus ? "none" : "auto"}>
+        <TextInput
+          style={[
+            styles.input,
+            {
+              backgroundColor: isDarkMode ? 'rgb(73, 70, 70)' : 'rgba(255, 255, 255, 0.34)',
+              color:"white",
+            },
+          ]}
+          value={value}
+          onChangeText={onChangeText}
+          keyboardType={keyboardType}
+          secureTextEntry={secureTextEntry}
+          editable={editable}
+          placeholderTextColor={isDarkMode ? '#aaa' : '#666'}
+        />
+      </View>
+    </View>
+  );
+};
 
 
+const createStyles = (isDarkMode) =>
+  StyleSheet.create({
+    backgroundImage: {
+      flex: 1,
+      resizeMode: "cover",
+    },
+    scrollContainer: {
+      flexGrow: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      paddingBottom:220,
+    },
+    container: {
+      width: '90%',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    titleContainer: {
+      marginBottom: 20,
+      backgroundColor: 'transparent' ,
+    },
+    inputContainer: {
+      width: '100%',
+    },
+    inputWrapper: {
+      marginBottom: 15,
+    },
+    label: {
+      fontSize: 15,
+      fontWeight: 'bold',
+      width:"85%",
+      alignSelf:"center",
+      marginBottom: 5,
+    },
+    input: {
+      height: 50,
+      backgroundColor: '#FFF',
+      borderColor:"transparent",
+      borderRadius: 10,
+      paddingHorizontal: 15,
+      width:"85%",
+      alignSelf:"center",
+      borderWidth: 1,
+    },
+    button: {
+      backgroundColor: isDarkMode ? "rgba(220, 220, 220, 0.54)" : "#4A90E2",
+      padding: 15,
+      borderRadius: 10,
+      alignItems: 'center',
+      marginVertical: 10,
+      width: '85%',
+    },
+    buttonText: {
+      color: '#FFF',
+      fontSize: 16,
+      fontWeight: 'bold',
+    },
+    titleText: {
+      color: '#FFF',
+      paddingTop:10,
+      fontSize: 40,
+      fontWeight: 'bold',
+    },
+    switchText: {
+      backgroundColor: isDarkMode ? "rgba(220, 220, 220, 0)" : "transparent",
+      color:isDarkMode ? "rgb(255, 255, 255)" : "#4A90E2",
+      marginTop: 10,
+    },
+  });

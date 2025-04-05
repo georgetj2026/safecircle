@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import {
-  Appearance,
   StyleSheet,
   SafeAreaView,
   ScrollView,
@@ -10,21 +9,20 @@ import {
   ImageBackground,
   StatusBar,
 } from "react-native";
-import { Colors } from "@/constants/Colors";
 import { useNavigation } from "@react-navigation/native";
-import bgImage from "@/assets/images/a7395e40-2054-4147-8314-728e940a8063.jpg"; // Replace with your actual background image
+import { useTheme } from "@/context/ThemeContext"; // Using your global theme
+
+const darkBg = require("@/assets/images/0002.jpg");
+const lightBg = require("@/assets/images/002.jpg");
 
 export default function HelpGuidelines() {
   const navigation = useNavigation();
-  const colorScheme = Appearance.getColorScheme();
-  const theme = colorScheme === "dark" ? Colors.dark : Colors.light;
-  const styles = createStyles(theme);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const { isDarkMode } = useTheme();
 
-  // Remove white space at the top
   useEffect(() => {
-    navigation.setOptions({ headerShown: false }); // Hide header
-    StatusBar.setHidden(true); // Hide status bar
+    navigation.setOptions({ headerShown: false });
+    StatusBar.setHidden(true);
   }, []);
 
   useEffect(() => {
@@ -35,55 +33,63 @@ export default function HelpGuidelines() {
     }).start();
   }, []);
 
+  const styles = createStyles(isDarkMode);
+
   return (
-    <ImageBackground source={bgImage} style={styles.backgroundImage}>
+    <ImageBackground
+      source={isDarkMode ? darkBg : lightBg}
+      style={styles.backgroundImage}
+    >
       <SafeAreaView style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Animated.View style={{ opacity: fadeAnim }}>
-            <Text style={styles.header}>Help & Guidelines</Text>
+            <Text style={styles.header}>HELP & GUIDELINES</Text>
             <Text style={styles.subHeader}>Welcome to SafeCircle</Text>
             <Text style={styles.description}>
-              SafeCircle is an emergency alert system that helps you notify your trusted contacts
-              in case of danger. The app provides quick access to emergency reporting, location
-              sharing, and media recording for your safety.
+            SafeCircle is like a personal emergency alert system designed to help you stay safe by instantly notifying your trusted contacts during emergencies. It sends your live location. The app offers quick real-time location shareing and service assistance all in one platform
+
             </Text>
 
             <Text style={styles.sectionTitle}>Features Overview</Text>
 
-            <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>1. Login & Profile</Text>
-              <Text style={styles.featureText}>
-                Securely log in to access your settings. Update your profile details anytime.
-              </Text>
-            </View>
-
-            <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>2. Emergency Reporting</Text>
-              <Text style={styles.featureText}>
-                Press the 'Report' button to send an emergency alert with your real-time location to usew selected contact.
-              </Text>
-            </View>
-
-            <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>3.Call function</Text>
-              <Text style={styles.featureText}>
-               Enable call mode to redirect call to your selected contact.
-              </Text>
-            </View>
-
-            <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>4. Location Sharing</Text>
-              <Text style={styles.featureText}>
-                Your location is included in alerts to help contacts find you faster.
-              </Text>
-            </View>
-
-            <View style={styles.featureBox}>
-              <Text style={styles.featureTitle}>5. Services </Text>
-              <Text style={styles.featureText}>
-                We have include all the services available in india to enable user to search for nerby police stations and hospitals.
-              </Text>
-            </View>
+            {[
+              {
+                title: "1. Login & Profile",
+                desc: "Securely log in to access your settings. Update your profile details anytime with medicals and blood group.",
+              },
+              {
+                title: "2. Emergency Reporting",
+                desc: "Press the 'Report' button to send an emergency alert with your real-time location.Use META_API to send alert message to your selected contacts using our whatapp chat bot",
+              },
+              {
+                title: "3. Services",
+                desc: "Includes emergency services in India from states to districts. Our databse includes police, hospitals, fire services , Vechile service , road side assistance services etc.",
+              },
+              {
+                title: "4. Call Function",
+                desc: "Enable call mode to redirect the call to your selected contact.",
+              },
+              {
+                title: "5. Location Sharing",
+                desc: "Your location is included in alerts to help contacts find you faster along with your preset situvation description.",
+              },
+              {
+                title: "6. History & data",
+                desc: "Each time the alert msg is send the history is stored in our database you can see the overview of your history and delete it from our database .",
+              },
+             
+            ].map((item, idx) => (
+              <View key={idx} style={styles.featureBox}>
+                <Text style={styles.featureTitle}>{item.title}</Text>
+                <Text style={styles.featureText}>{item.desc}</Text>
+              </View>
+            ))}
+            <Text style={styles.EndText1}>For further details and infromation</Text>
+            <Text style={styles.EndText}>Developer : Naveen Ajesh </Text>
+            <Text style={styles.EndText}>Contact: 7909107741</Text>
+            <Text style={styles.EndText2}>Naveenajesh@gmail.com</Text>
+            
+            
           </Animated.View>
         </ScrollView>
       </SafeAreaView>
@@ -91,7 +97,9 @@ export default function HelpGuidelines() {
   );
 }
 
-function createStyles(theme) {
+function createStyles(isDarkMode) {
+  const textColor = isDarkMode ? "white" : "black";
+
   return StyleSheet.create({
     backgroundImage: {
       width: "100%",
@@ -100,51 +108,86 @@ function createStyles(theme) {
       resizeMode: "cover",
     },
     container: {
-      flex: 10,
-      padding: 36,
-      backgroundColor: "rgba(0, 0, 0, 0.6)", // Semi-transparent overlay for better readability
+      flex: 1,
+      paddingHorizontal: 24,
+      paddingVertical: 36,
+      backgroundColor: "rgba(0, 0, 0, 0.6)", // optional overlay
     },
     header: {
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: "bold",
       textAlign: "center",
-      color: "blue",
-      marginBottom: 10,
+      color: isDarkMode ? "white" : "rgb(22, 81, 241)",
+      marginBottom: 16,
     },
     subHeader: {
-      fontSize: 18,
-      fontWeight: "bold",
-      color: "lightblue",
-      textAlign: "center",
-      marginBottom: 10,
-    },
-    description: {
-      fontSize: 16,
-      color: "white",
-      textAlign: "center",
-      marginBottom: 20,
-    },
-    sectionTitle: {
       fontSize: 20,
-      fontWeight: "bold",
-      color: "violet",
-      marginBottom: 10,
-    },
-    featureBox: {
-      backgroundColor: "rgba(255, 255, 255, 0.2)", // Transparent box effect
-      padding: 20,
-      borderRadius: 10,
+      fontWeight: "600",
+      color: isDarkMode ? "white" : "rgba(203, 211, 237, 0.71)",
+      textAlign: "center",
       marginBottom: 12,
     },
-    featureTitle: {
-      fontSize: 16,
+    description: {
+      fontSize: 18,
+      color: "white",
+      paddingLeft: 40,
+      textAlign: "centre",
+      marginBottom: 24,
+      paddingHorizontal: 10,
+    },
+    sectionTitle: {
+      fontSize: 22,
       fontWeight: "bold",
-      color: "pink",
-      marginBottom: 5,
+      color: isDarkMode ? "white" : "rgba(241, 194, 22, 0.84)",
+      marginBottom: 12,
+      paddingLeft: 30,
+      paddingHorizontal: 10,
+    },
+    featureBox: {
+      backgroundColor: isDarkMode
+        ? "rgba(255, 255, 255, 0.1)"
+        : "rgba(72, 102, 190, 0.39)",
+      padding: 15,
+      borderRadius: 12,
+      justifyContent: "center",
+      alignSelf: "center",
+      width: "90%",
+      marginBottom: 16,
+    },
+    featureTitle: {
+      fontSize: 18,
+      fontWeight: "bold",
+      color: isDarkMode ? "white" : "rgb(183, 199, 233)",
+      marginBottom: 6,
     },
     featureText: {
-      fontSize: 14,
-      color: "white",
+      fontSize: 15,
+      color:"white",
+      fontStyle: "italic",
+      lineHeight: 22,
+    },
+    EndText: {
+      fontSize: 15,
+      color:"white",
+      fontStyle: "italic",
+      lineHeight: 23,
+      alignSelf:"center"
+    },
+    EndText1: {
+      fontSize: 15,
+      color:"white",
+      paddingTop:20,
+      fontStyle: "italic",
+      lineHeight: 23,
+      alignSelf:"center"
+    },
+    EndText2: {
+      fontSize: 15,
+      color:"white",
+      fontStyle: "italic",
+      lineHeight: 23,
+      alignSelf:"center",
+      paddingBottom:190,
     },
   });
 }

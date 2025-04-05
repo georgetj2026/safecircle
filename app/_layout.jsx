@@ -7,6 +7,7 @@ import { Appearance } from 'react-native';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Colors } from '@/constants/Colors'; // Import your theme constants
 import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
+import { ThemeProvider } from "@/context/ThemeContext";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -36,7 +37,8 @@ export default function RootLayout() {
   }
 
   return (
-    <AuthProvider> {/* Wrap everything inside AuthProvider */}
+    <ThemeProvider>
+          <AuthProvider> {/* Wrap everything inside AuthProvider */}
       <PaperProvider theme={theme}>
         <Stack
           screenOptions={{
@@ -54,5 +56,7 @@ export default function RootLayout() {
         <StatusBar style="auto" />
       </PaperProvider>
     </AuthProvider>
+    </ThemeProvider>
+
   );
 }
