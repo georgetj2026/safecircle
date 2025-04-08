@@ -145,7 +145,7 @@ export default function Profile() {
                 }
                 style={styles.profileImage}
               />
-              <Text style={styles.changePhotoText}>Change</Text>
+
             </TouchableOpacity>
 
             {/* Non-Editable Details */}
@@ -232,19 +232,14 @@ function createStyles(isDarkMode) {
       width: 150,
       height: 150,
       borderRadius: 75,
-      borderWidth: 3,
-      borderColor: isDarkMode ? "white" : "black", // Adjust border color
+      borderWidth: 6,
+      borderColor: isDarkMode ? "rgb(64, 67, 71)" : "rgba(58, 132, 243, 0.75)", // Adjust border color
       marginTop: 20,
     },
-    changePhotoText: {
-      marginTop: 5,
-      color: isDarkMode ? "lightgrey" : "black", // Adjust text color
-      fontWeight: "bold",
-    },
     infoContainer: {
-      backgroundColor: isDarkMode ? "rgba(50, 50, 50, 0.8)" : "rgba(61, 58, 145, 0.8)", // Adjust background color
+      backgroundColor: isDarkMode ? "rgba(50, 50, 50, 0.8)" : "rgba(149, 152, 167, 0.22)", // Adjust background color
       padding: 15,
-      borderRadius: 10,
+      borderRadius: 20,
       elevation: 3,
       width: "90%",
       marginTop: 20,
@@ -252,7 +247,7 @@ function createStyles(isDarkMode) {
     sectionTitle: {
       fontSize: 18,
       fontWeight: "bold",
-      color: "white",
+      color: isDarkMode ? "rgb(149, 149, 149)" : "rgba(255, 255, 255, 0.8)",
       marginBottom: 10,
     },
     detailRow: {

@@ -10,7 +10,7 @@ import { useTheme } from "@/context/ThemeContext";
 import CalendarPicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
 
 
-import moment from 'moment';
+import moment, { max } from 'moment';
 
 
 export default function LoginScreen() {
@@ -64,14 +64,29 @@ export default function LoginScreen() {
   const validateDOB = (dob) => {
     const re = /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(19|20)\d\d$/;
     const isValidFormat = re.test(dob);
-    if (isValidFormat) {
-      const [day, month, year] = dob.split('/');
-      const date = new Date(year, month - 1, day);
-      const today = new Date();
-      return date < today;
+    if (!isValidFormat) return false;
+  
+    const [day, month, year] = dob.split('/');
+    const dobDate = new Date(year, month - 1, day);
+    const today = new Date();
+  
+    // Ensure date is in the past
+    if (dobDate >= today) return false;
+  
+    // Calculate age
+    const ageDiff = today.getFullYear() - dobDate.getFullYear();
+    const monthDiff = today.getMonth() - dobDate.getMonth();
+    const dayDiff = today.getDate() - dobDate.getDate();
+  
+    let age = ageDiff;
+    if (monthDiff < 0 || (monthDiff === 0 && dayDiff < 0)) {
+      age--; // Birthday hasn't come yet this year
     }
-    return false;
+  
+    // ✅ Check if age is at least 15
+    return age >= 15;
   };
+  
   const { isDarkMode } = useTheme(); // Get dark mode from context
 
   const styles = createStyles(isDarkMode); 
@@ -89,9 +104,9 @@ export default function LoginScreen() {
         return;
       }
       if (!validateDOB(dob)) {
-        Alert.alert("Invalid DOB", "Please enter a valid Date of Birth in DD/MM/YYYY format and ensure the date is in the past.");
+        Alert.alert("Invalid DOB", "You must be at least 15 years old. Please enter a valid Date of Birth in DD/MM/YYYY format.");
         return;
-      }
+      }      
     }
 
     if (!phone || !validatePhone(phone)) {
@@ -126,7 +141,11 @@ export default function LoginScreen() {
         setIsLogin(true);
       }
     } catch (error) {
-      Alert.alert("Error", error.message || "Something went wrong!");
+      if (isLogin) {
+        Alert.alert("Login Failed", error.message || "Incorrect email or password                     or user do not exist.");
+      } else {
+        Alert.alert("Registration Failed", error.message || "Name / Phone / Email / Aadhar may already be in use.");
+      }
     }
   };
 

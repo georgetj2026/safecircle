@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Image } from "react-native";
 import {
   View,
   Text,
@@ -10,9 +11,11 @@ import {
   Animated,
   ScrollView,
 } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
 import { useNavigation } from "@react-navigation/native";
 import { useTheme } from "@/context/ThemeContext"; // Import ThemeContext
+import GooglePin from "../assets/images/google1.jpg";
+import call from "../assets/images/call2.jpg";
+
 
 const data = {
   "": ["Visakhapatnam", "Vijayawada", "Guntur", "Nellore", "Kurnool"],
@@ -74,7 +77,7 @@ const services = {
 
 ],
 "idukki": [
-  { name: "Idukki Police Station", address: "Thodupuzha - Puliyanmala Road, Idukki Colony Post, Cheruthoni, Kerala 685602", phone: ": 04862 235 229", location: "https://g.co/kgs/q5t77Tk" },
+  { name: "Idukki Police Station", address: "Thodupuzha - Puliyanmala Road, Idukki Colony Post, Cheruthoni, Kerala 685602", phone: ": 04862 235 229`", location: "https://g.co/kgs/q5t77Tk" },
   { name: "Fire and Rescue Station, Idukki", address: "Aalin Chuvadu, Road, Alinchuvadu, Kattappana, Kerala 685602", phone: " 04868 272 300", location: "https://g.co/kgs/H3dwWgd" }
 ],
 "Ernakulam": [
@@ -152,9 +155,16 @@ export default function ServicesScreen() {
           <View key={index} style={styles.serviceCard}>
             <Text style={styles.serviceName}>{service.name}</Text>
             <Text style={styles.serviceadd}>{service.address}</Text>
-            <Pressable onPress={() => Linking.openURL(`tel:${service.phone}`)}>
-              <Text style={styles.phoneLink}>CALL: {service.phone}</Text>
-            </Pressable >
+            <Pressable onPress={() => Linking.openURL(`tel:${service.phone}`)}style={{
+                     flexDirection: "row",
+                     paddingLeft: 15,
+                     paddingBottom: 10,
+                     alignItems: "center",
+                     marginTop: 20,
+                     }}>
+                <Image source={call}style={{ width: 35, height: 35, borderRadius: 20, marginRight: 10 }}/>
+                <Text style={styles.phoneLink}>{service.phone}</Text>
+            </Pressable>
             <Pressable
                onPress={() => {
                   if (service.location) {
@@ -167,8 +177,8 @@ export default function ServicesScreen() {
                }}
                  style={{ flexDirection: "row",paddingLeft:15,paddingBottom:15, alignItems: "center", marginTop: 6 }}
                 >
-               <Icon name="location-on" size={29} color="red" style={{ marginRight: 5 }} />
-                <Text style={styles.locationLink}>LOCATION</Text>
+               <Image source={GooglePin} style={{ width: 35, height: 35,borderRadius:20, marginRight: 5 }}/>
+                <Text style={styles.locationLink}>  location</Text>
             </Pressable>
 
           </View>
@@ -244,7 +254,7 @@ const createStyles = (isDarkMode) =>
     serviceCard: {
       padding: 10,
       marginVertical: 10,
-      backgroundColor: isDarkMode ? "rgba(42, 41, 41, 0.9)" : "rgba(60, 95, 183, 0.8)", // Adjust card color
+      backgroundColor: isDarkMode ? "rgba(42, 41, 41, 0.54)" : "rgba(60, 95, 183, 0.8)", // Adjust card color
       borderRadius: 20,
       width: "90%",
     },
@@ -253,7 +263,7 @@ const createStyles = (isDarkMode) =>
       fontWeight: "bold",
       padding: 10,
       textAlign: "center",
-      color: isDarkMode ? "white" : "black", // Adjust text color
+      color: isDarkMode ? "lightgrey" : "black", // Adjust text color
     },
     serviceadd: {
       fontSize: 15,
@@ -263,16 +273,15 @@ const createStyles = (isDarkMode) =>
       color: "white", // Adjust text color
     },
     phoneLink: {
-      color: isDarkMode ? "white" : "white", // Adjust link color
-      padding: 10,
-      fontWeight: "bold",
-      fontSize: 16,
-      marginTop: 10,
-      textAlign: "left",
+      color:"white",
+      fondtFamily: "Georgia",
+      fontWeight: "200",
+      fontSize: 20,
     },
     locationLink: {
       color:"white",
-      fontWeight: "700",
+      fondtFamily: "Georgia",
+      fontWeight: "200",
       fontSize: 20,
     },
   });

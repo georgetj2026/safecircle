@@ -42,7 +42,7 @@ export default function HelpGuidelines() {
     >
       <SafeAreaView style={styles.container}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <Animated.View style={{ opacity: fadeAnim }}>
+          <Animated.View >
             <Text style={styles.header}>HELP & GUIDELINES</Text>
             <Text style={styles.subHeader}>Welcome to SafeCircle</Text>
             <Text style={styles.description}>
@@ -85,7 +85,7 @@ export default function HelpGuidelines() {
               </View>
             ))}
             <Text style={styles.EndText1}>For further details and infromation</Text>
-            <Text style={styles.EndText}>Developer : Naveen Ajesh </Text>
+            <Text style={styles.EndText}>Naveen Ajesh (CEO Safecircle)</Text>
             <Text style={styles.EndText}>Contact: 7909107741</Text>
             <Text style={styles.EndText2}>Naveenajesh@gmail.com</Text>
             
@@ -111,8 +111,7 @@ function createStyles(isDarkMode) {
       flex: 1,
       paddingHorizontal: 24,
       paddingVertical: 36,
-      backgroundColor: "rgba(0, 0, 0, 0.6)", // optional overlay
-    },
+       },
     header: {
       fontSize: 28,
       fontWeight: "bold",

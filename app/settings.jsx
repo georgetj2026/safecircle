@@ -13,13 +13,21 @@ const Settings = () => {
   const { isDarkMode, setIsDarkMode } = useTheme();
 
   useEffect(() => {
-    navigation.setOptions({ headerShown: false }); // Hide the header
+    navigation.setOptions({ headerShown: false });
+  
     const loadSettings = async () => {
       const savedMetaApiState = await AsyncStorage.getItem("useMetaApi");
-      setUseMetaApi(savedMetaApiState === "true"); // Load saved state
+      const savedNotificationsState = await AsyncStorage.getItem("notificationsEnabled");
+      const savedDarkMode = await AsyncStorage.getItem("isDarkMode");
+  
+      if (savedMetaApiState !== null) setUseMetaApi(savedMetaApiState === "true");
+      if (savedNotificationsState !== null) setNotificationsEnabled(savedNotificationsState === "true");
+      if (savedDarkMode !== null) setIsDarkMode(savedDarkMode === "true");
     };
+  
     loadSettings();
   }, [navigation]);
+  
 
   const styles = createStyles(isDarkMode); // Dynamically generate styles based on darkMode
 
@@ -27,7 +35,16 @@ const Settings = () => {
     setUseMetaApi(value);
     await AsyncStorage.setItem("useMetaApi", value.toString()); // Save state to AsyncStorage
   };
-
+  
+  const handleNotificationToggle = async (value) => {
+    setNotificationsEnabled(value);
+    await AsyncStorage.setItem("notificationsEnabled", value.toString());
+  };
+  const handleDarkModeToggle = async (value) => {
+    setIsDarkMode(value);
+    await AsyncStorage.setItem("isDarkMode", value.toString());
+  };
+    
   const handleDeleteProfile = async () => {
     try {
       const token = await AsyncStorage.getItem("authToken");
@@ -78,19 +95,15 @@ const Settings = () => {
           {/* Notification Toggle */}
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>Enable Notifications</Text>
-            <Switch
-              value={notificationsEnabled}
-              onValueChange={setNotificationsEnabled}
-            />
+            <Switch value={notificationsEnabled}onValueChange={handleNotificationToggle}/>
+
           </View>
 
           {/* Dark Mode Toggle */}
           <View style={styles.settingRow}>
             <Text style={styles.settingText}>Dark Mode</Text>
-            <Switch
-              value={isDarkMode}
-              onValueChange={setIsDarkMode}
-            />
+            <Switch value={isDarkMode}onValueChange={handleDarkModeToggle}/>
+
           </View>
 
           {/* Use META API Toggle */}

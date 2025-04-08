@@ -5,28 +5,8 @@ const UserSchema = new mongoose.Schema(
     name: { type: String, required: true,unique: true },
     address: { type: String, required: true },
     aadhar: { type: String, required: true, unique: true },
-    phone: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: function (v) {
-          return /^[0-9]{10}$/.test(v); // Ensures exactly 10 digits
-        },
-        message: "Phone number must be exactly 10 digits.",
-      },
-    },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-      validate: {
-        validator: function (v) {
-          return /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(v); // Standard email format
-        },
-        message: "Invalid email format.",
-      },
-    },
+    phone:  { type: String, required: true, unique: true },
+    email:  { type: String, required: true, unique: true },
     dob: { type: String, required: true },
     gender: { type: String, required: true },
     password: { type: String, required: true }, // Storing plain text (but should be hashed in production)

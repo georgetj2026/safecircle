@@ -8,6 +8,10 @@ import { Provider as PaperProvider } from 'react-native-paper';
 import { Colors } from '@/constants/Colors'; // Import your theme constants
 import { AuthProvider } from '@/context/AuthContext'; // Import AuthProvider
 import { ThemeProvider } from "@/context/ThemeContext";
+import { LogBox } from 'react-native';
+
+LogBox.ignoreAllLogs(); // 😎 This will suppress all yellow box warnings
+
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
