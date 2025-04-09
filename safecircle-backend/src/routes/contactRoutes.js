@@ -11,7 +11,7 @@ router.get("/report-options", authMiddleware, getReportOptions); // Get report o
 
 router.post("/send-whatsapp-messages", authMiddleware, async (req, res) => {
   try {
-    const { name, procedure, locationLink, contacts } = req.body;
+    const { name, procedure, locationLink, contacts} = req.body;
 
     if (!name || !procedure || !locationLink || !contacts) {
       return res.status(400).json({ message: "Name, procedure, location, and contacts are required." });
@@ -25,7 +25,16 @@ router.post("/send-whatsapp-messages", authMiddleware, async (req, res) => {
     }
 
     // Construct the message
-    const message = `⚠️⚠️EMERGENCY ALERT⚠️⚠️ __________Situation:${name}____________ Message From: ${user.name}......... From:${user.phone} ************** ${procedure}\n📌📌------LOCATION:------📌📌${locationLink}`;
+    const timestamp = new Date().toLocaleString("en-US", {
+      month: "long",   // Full month name (e.g., April)
+      day: "numeric",  // Day number (e.g., 9)
+      year: "numeric", // Full year (e.g., 2025)
+      hour: "numeric", // Hour (e.g., 10)
+      minute: "2-digit", // Minutes (e.g., 25)
+      hour12: true     // 12-hour format with AM/PM
+    }).replace(",", " at");
+    
+    const message = `\t•🆘•••🆘•••🆘\n\n *EMERGENCY RESPONSE ALERT* \n\nSituation:\t${name}\nMessage From:\t${user.name}\nPhone :\t${user.phone}\n\n${procedure}\n📌*LOCATION*\n${locationLink}\n\n *DATE & TIME*\n ${timestamp}\n\n _This is an auto-generated alert from SafeCircle by ${user.name},_`;
     // Send WhatsApp messages
     await sendWhatsAppMessages(message, contacts);
 
